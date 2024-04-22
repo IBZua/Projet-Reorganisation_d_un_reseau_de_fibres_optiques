@@ -32,36 +32,40 @@ Noeud* rechercheCreeNoeudListe(Reseau *R, double x, double y){
 Reseau* reconstitueReseauListe(Chaines *C){
 	//si chaine vide
 	if(!C){return NULL;}
-	
-	Reseau* R = malloc(sizeof(Reseau));
+	/*INITIALISATION RESEAU*/
+	Reseau *R = (Reseau*)malloc(sizeof(Reseau));
 	R->nbNoeuds = comptePointsTotal(C);
 	R->gamma = C->gamma;
-	R->noeuds = malloc(sizeof(CellNoeud));
-	
-	CellPoint* prec = malloc(sizeof(CellPoint));
-	
+	R->noeuds = (CellNoeud*)malloc(sizeof(CellNoeud));
+	R->commodites = (CellCommodite*)malloc(sizeof(CellCommodite));
+	//Initialisation prec pour parcourir voisins
+	CellPoint* prec = (CellPoint*)malloc(sizeof(CellPoint));
+	//On parcourt les chaines
 	while(C->chaines){
-	
+		//On ajoute commodite A au reseau
 		R->commodites->extrA = rechercheCreeNoeudListe(R, C->chaines->points->x, C->chaines->points->y);
+		
+		//On ajoute le premier point
+		R->noeuds->nd = rechercheCreeNoeudListe(R, C->chaines->points->x, C->chaines->points->y);
+		R->noeuds->nd->voisins->nd = rechercheCreeNoeudListe(R, C->chaines->points->suiv->x, C->chaines->points->suiv->y);
 		prec = C->chaines->points;
 		C->chaines->points = C->chaines->points->suiv;
 		
-		while(C->chaines->points){
-			if(C->chaines->points->suiv != NULL){
-				R->noeuds->nd = rechercheCreeNoeudListe(R, C->chaines->points->x, C->chaines->points->y);
-				R->noeuds->nd->voisins->nd = rechercheCreeNoeudListe(R, prec->x, prec->y);
-				R->noeuds->nd->voisins->suiv->nd = rechercheCreeNoeudListe(R, C->chaines->points->suiv->x, C->chaines->points->suiv->y);
-				prec = C->chaines->points;
-				C->chaines->points = C->chaines->points->suiv;
-			}
-			else{
-				break;
-			}
+		//On parcourt les points de la chaine
+		while(C->chaines->points->suiv){
+			R->noeuds->nd = rechercheCreeNoeudListe(R, C->chaines->points->x, C->chaines->points->y);
+			R->noeuds->nd->voisins->nd = rechercheCreeNoeudListe(R, prec->x, prec->y);
+			R->noeuds->nd->voisins->suiv->nd = rechercheCreeNoeudListe(R, C->chaines->points->suiv->x, C->chaines->points->suiv->y);
+			prec = C->chaines->points;
+			C->chaines->points = C->chaines->points->suiv;
 		}
+		R->noeuds->nd = rechercheCreeNoeudListe(R, C->chaines->points->x, C->chaines->points->y);
+		R->noeuds->nd->voisins->nd = rechercheCreeNoeudListe(R, prec->x, prec->y);
 		
-		C->chaines->points = C->chaines->points->suiv;
+		//On maj commodite B
 		R->commodites->extrB = rechercheCreeNoeudListe(R, C->chaines->points->x, C->chaines->points->y);
 		R->commodites = R->commodites->suiv;
+		
 		C->chaines = C->chaines->suiv;
 	}
 	return R;
