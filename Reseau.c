@@ -4,65 +4,170 @@
 Noeud* rechercheCreeNoeudListe(Reseau *R, double x, double y){
 	//si reseau vide
 	if(!R){return 0;}
+	
+	CellNoeud *ncour = R->noeuds;
 	//On parcourt chaque noeud du reseau tant que les coordonnees correspondent pas
-	while(R->noeuds->nd && R->noeuds->nd->x != x && R->noeuds->nd->y != y){
-		R->noeuds = R->noeuds->suiv;
+	while((ncour) && (ncour->nd->x != x) && (ncour->nd->y != y)){
+		ncour = ncour->suiv;
 	}
+	
 	//Si rien n'est trouve on cree le noeud aux coordonnees x y
-	if(!R->noeuds->nd){
-		//maj du nombre de noeud
-		R->nbNoeuds++;
+	if(!ncour){
+		
 		//creation nouveau noeud
 		Noeud* n = (Noeud*)malloc(sizeof(Noeud));
+		n->num = R->nbNoeuds + 1;
 		n->x = x;
 		n->y = y;
-		n->num = R->nbNoeuds;
 		n->voisins = NULL;
-		R->noeuds->suiv->nd = n;
 		//creation nouvelle cellnoeud
 		CellNoeud* cn = (CellNoeud*)malloc(sizeof(CellNoeud));
 		cn->nd = n;
 		cn->suiv = R->noeuds;
 		R->noeuds = cn;
+		//maj du nombre de noeud
+		R->nbNoeuds++;
+		
 		return n;
+		
 	}
-	return R->noeuds->nd;
+	
+	return ncour->nd;
 }
 
+
+
+/*
+void insereVoisin(CellNoeud ** L, Noeud * n) {
+    CellNoeud * voisin = (*L);
+    
+    //Parcourt la liste des voisins 
+    while ((voisin != NULL) && (voisin -> nd != n)) voisin = voisin -> suiv;
+    
+    // Si ce noeud n'est pas dans la liste, on l'ajoute 
+    if (!voisin) {
+        voisin = (CellNoeud *)malloc(sizeof(CellNoeud));
+        voisin -> nd = n;
+        voisin -> suiv = (*L);
+        (*L) = voisin;
+    }
+}
+
+
+// Q 2.2 
+Reseau* reconstitueReseauListe(Chaines *C) {
+  if (!C) return NULL;
+
+  // Creer le reseau 
+  Reseau * r = (Reseau *)malloc(sizeof(Reseau));
+
+  r -> nbNoeuds = 0;
+  r -> gamma = C -> gamma;
+  r -> commodites = NULL;
+  r -> noeuds = NULL;
+
+  CellCommodite * ccommo = NULL;
+  Noeud * n  = NULL;
+  Noeud * nPrec = NULL;
+	
+  CellChaine * cc = C -> chaines;
+  CellPoint * cp = NULL;
+
+  while (cc) {
+    cp = cc -> points;
+    nPrec = NULL;
+    n = NULL;
+
+    //On cree une commodite chaque fois au debut d'un parcourt d'une chaine 
+    ccommo = (CellCommodite *)malloc(sizeof(CellCommodite));
+
+    while (cp) {
+      //On conserve le noeud precedent 
+      nPrec = n;
+      // On cree un noeud et l'ajoute dans le reseau 
+      n = rechercheCreeNoeudListe(r, cp -> x, cp -> y);
+      // On ajoute les voisins si ce noeud n'est pas le premier dans une chaine 
+      if (nPrec) {
+        insereVoisin(&(nPrec -> voisins), n);
+        insereVoisin(&(n -> voisins), nPrec);
+      } else {
+        //Si ce noeud est le premier dans une chaine, alors il est l'extrA *
+        ccommo -> extrA = n;
+      }
+
+      cp = cp -> suiv;
+    }
+    // On ajoute le commodite dans la liste 
+    ccommo -> extrB = n;
+    ccommo -> suiv = r -> commodites;
+    r -> commodites = ccommo;
+    
+    cc = cc -> suiv;
+  }
+  
+  return r;
+}*/
+
 Reseau* reconstitueReseauListe(Chaines *C){
+printf("wtf");
 	//si chaine vide
 	if(!C){return NULL;}
-	
-	Reseau* R = malloc(sizeof(Reseau));
+	//INITIALISATION RESEAU
+	Reseau *R = (Reseau*)malloc(sizeof(Reseau));
 	R->nbNoeuds = comptePointsTotal(C);
 	R->gamma = C->gamma;
-	R->noeuds = malloc(sizeof(CellNoeud));
+	R->noeuds = NULL;
+	R->commodites = NULL;
+	//Initialisation prec pour parcourir voisins
+	CellPoint* prec = (CellPoint*)malloc(sizeof(CellPoint));
+	CellCommodite* com;
 	
-	CellPoint* prec = malloc(sizeof(CellPoint));
-	
-	while(C->chaines){
-	
-		R->commodites->extrA = rechercheCreeNoeudListe(R, C->chaines->points->x, C->chaines->points->y);
-		prec = C->chaines->points;
-		C->chaines->points = C->chaines->points->suiv;
+	printf("test creation");
+	CellChaine *chainecour = C->chaines;
+	CellPoint * pointcour = NULL;
+	//On parcourt les chaines
+	while(chainecour){
+		pointcour = chainecour->points;
 		
-		while(C->chaines->points){
-			if(C->chaines->points->suiv != NULL){
-				R->noeuds->nd = rechercheCreeNoeudListe(R, C->chaines->points->x, C->chaines->points->y);
-				R->noeuds->nd->voisins->nd = rechercheCreeNoeudListe(R, prec->x, prec->y);
-				R->noeuds->nd->voisins->suiv->nd = rechercheCreeNoeudListe(R, C->chaines->points->suiv->x, C->chaines->points->suiv->y);
-				prec = C->chaines->points;
-				C->chaines->points = C->chaines->points->suiv;
-			}
-			else{
-				break;
-			}
+		com = (CellCommodite*)malloc(sizeof(CellCommodite));
+		//On initialise/ajoute commodite A au reseau
+		R->commodites = com;
+		R->commodites->extrA = rechercheCreeNoeudListe(R, pointcour->x, pointcour->y);
+		
+		R->noeuds->nd->voisins = (CellNoeud*)malloc(sizeof(CellNoeud));
+		
+		printf("commodite");
+		//On ajoute le premier point
+		R->noeuds->nd = rechercheCreeNoeudListe(R, pointcour->x, pointcour->y);
+		printf("1 x et y de: %f %f", pointcour->x, pointcour->y);
+		R->noeuds->nd->voisins->nd = rechercheCreeNoeudListe(R, pointcour->suiv->x, pointcour->suiv->y);
+		printf("1 x et y de: %f %f", pointcour->x, pointcour->y);
+		prec = pointcour;
+		pointcour = pointcour->suiv;
+		
+		//On parcourt les points de la chaine
+		while(pointcour->suiv){
+			R->noeuds->nd = rechercheCreeNoeudListe(R, pointcour->x, pointcour->y);
+			printf("2 x et y de: %f %f", pointcour->x, pointcour->y);
+			R->noeuds->nd->voisins = (CellNoeud*)malloc(sizeof(CellNoeud));
+			R->noeuds->nd->voisins->nd = rechercheCreeNoeudListe(R, prec->x, prec->y);
+			printf("x et y de prec: %f %f", prec->x, prec->y);
+			R->noeuds->nd->voisins->suiv = (CellNoeud*)malloc(sizeof(CellNoeud));
+			R->noeuds->nd->voisins->suiv->nd = rechercheCreeNoeudListe(R, pointcour->suiv->x, pointcour->suiv->y);
+			
+			prec = pointcour;
+			pointcour = pointcour->suiv;
 		}
+		R->noeuds->nd = rechercheCreeNoeudListe(R, pointcour->x, pointcour->y);
+		R->noeuds->nd->voisins = (CellNoeud*)malloc(sizeof(CellNoeud));
+		R->noeuds->nd->voisins->nd = rechercheCreeNoeudListe(R, prec->x, prec->y);
 		
-		C->chaines->points = C->chaines->points->suiv;
-		R->commodites->extrB = rechercheCreeNoeudListe(R, C->chaines->points->x, C->chaines->points->y);
-		R->commodites = R->commodites->suiv;
-		C->chaines = C->chaines->suiv;
+		//On maj commodite B
+		R->commodites->extrB = rechercheCreeNoeudListe(R, pointcour->x, pointcour->y);
+		com->suiv = R->commodites;
+		R->commodites = com;
+		
+		chainecour = chainecour->suiv;
 	}
 	return R;
 }
@@ -71,6 +176,7 @@ int nbCommodites(Reseau *R){
 	//si reseau vide
 	if(!R){return 0;}
 	int cpt = 0;
+	
 	while(R->commodites){
 		cpt++;
 		R->commodites = R->commodites->suiv;
@@ -97,7 +203,7 @@ int nbLiaisons(Reseau*R){
 	return cpt;
 }
 
-void ecrireReseau(Reseau*R,FILE*f){
+void ecrireReseau(Reseau*R, FILE*f){
 	fprintf(f,"NbNoeuds: %d\n",R->nbNoeuds);
 	int nbLiaison = nbLiaisons(R);
 	int nbCommodite = nbCommodites(R);
@@ -106,26 +212,33 @@ void ecrireReseau(Reseau*R,FILE*f){
 	fprintf(f,"Gamma: %d\n",R->gamma);
 	fprintf(f,"\n");
 	//la liste des noeuds
-	for(int i = 0; i < R->nbNoeuds; i++){
+	while(R->noeuds){
 		fprintf(f,"v %d %f %f\n", R->noeuds->nd->num, R->noeuds->nd->x, R->noeuds->nd->y);
+		R->noeuds = R->noeuds->suiv;
 	}
 	fprintf(f,"\n");
+
+	CellNoeud * voisins = NULL;
 	//la liste des voisins de chaque noeud
 	//On parcourt la liste des noeuds du reseau
-	for(int i = 0; i < R->nbNoeuds; i++){
+	while(R->noeuds){
 		//on parcourt la liste des voisins de chaque noeud
-		while(R->noeuds->nd->voisins){
+		voisins = R->noeuds->nd->voisins;
+		while(voisins){
 			//si le num du voisin est inf au num du noeud on ecrit
 			if(R->noeuds->nd->voisins->nd->num < R->noeuds->nd->num){
 				fprintf(f,"l %d %d\n", R->noeuds->nd->voisins->nd->num, R->noeuds->nd->num);
 			}
 			R->noeuds->nd->voisins = R->noeuds->nd->voisins->suiv;
 		}
+		R->noeuds = R->noeuds->suiv;
 	}
 	fprintf(f,"\n");
 	//la liste des commodites
-	for(int i = 0; i < nbCommodite; i++){
+	
+	while(R->commodites){
 		fprintf(f,"k %d %d\n", R->commodites->extrA->num, R->commodites->extrB->num);
+		R->commodites = R->commodites->suiv;
 	}
 }
 void afficheReseauSVG(Reseau *R, char* nomInstance){
