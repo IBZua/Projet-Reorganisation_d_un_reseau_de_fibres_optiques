@@ -37,14 +37,15 @@ Noeud* rechercheCreeNoeudListe(Reseau *R, double x, double y){
 }
 
 void insererVoisin(Noeud *N, Noeud *V){
-
-	while((N->voisins)&&(N->voisins->nd != V)){
-		N->voisins = N->voisins->suiv;
+	CellNoeud* listev = N->voisins;
+	while((listev)&&(listev->nd != V)){
+		listev = listev->suiv;
 	}
-	if(!N->voisins){
-		N->voisins = (CellNoeud*)malloc(sizeof(CellNoeud));
-		N->voisins->nd = V;
-		
+	if(!listev){
+		listev = (CellNoeud*)malloc(sizeof(CellNoeud));
+		listev->nd = V;
+		listev->suiv = N->voisins;
+		N->voisins = listev;
 	}
 	
 	
