@@ -194,3 +194,38 @@ int comptePointsTotal(Chaines *C){
     }
     return nbPoint;
 }
+
+void libererCellChaine(CellChaine * cc){
+  if(!cc){
+    return;
+  }
+
+  CellPoint * cpCour = cc -> points;
+  CellPoint * cpPrec;
+
+  while(cpCour){
+    cpPrec = cpCour;
+    cpCour = cpCour -> suiv;
+    free(cpPrec);
+  }
+
+  free(cc);
+  return;
+}
+
+void libererChaines(Chaines* C){
+  if(!C){
+    return;
+  }
+  CellChaine * ccCour = C -> chaines;
+  CellChaine * ccPrec;
+
+  while(ccCour){
+    ccPrec = ccCour;
+    ccCour = ccCour -> suiv;
+    libererCellChaine(ccPrec);
+  }
+
+  free(C);
+  return;
+}
