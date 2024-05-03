@@ -1,5 +1,6 @@
 #include <math.h>
-#include"Hachage.h"
+#include <stdlib.h>
+#include "Hachage.h"
 
 double cle(double x, double y){
     return y + (x + y) * (x + y + 1) * 1.0 / 2;
@@ -7,19 +8,19 @@ double cle(double x, double y){
 
 int hachage(int m, double k){
     double A = (sqrt(5)-1)/2;
-    return m*(k*A-(k*A))
+    return m*(k*A-(k*A));
 }
 
 Noeud* rechercheCreeNoeudHachage(Reseau* R, TableHachage* H, double x, double y){
     //si reseau vide
-	if(!R){return 0;}
+	if(!R){return NULL;}
     //On cree la cle et on calcul l'index dans H
     double c = cle(x,y);
     int index = hachage(c, H->tailleMax);
     //On se positionne a l'index
-    cellnoeud CNH = (H->T)[index];
+    CellNoeud *CNH = (H->T)[index];
     //On parcourt chaque noeud du reseau tant que les coordonnees correspondent pas
-    while(CNH && CNH->x != x && CNH->y != y){
+    while(CNH && CNH->nd->x != x && CNH->nd->y != y){
         CNH = CNH->suiv;
     }
 	//Si rien n'est trouve on cree le noeud aux coordonnees x y
@@ -39,10 +40,84 @@ Noeud* rechercheCreeNoeudHachage(Reseau* R, TableHachage* H, double x, double y)
 		cn->suiv = R->noeuds;
 		R->noeuds = cn;
         //ajout dans H
-        CellNoeud nouvCellH = (CellNoeud*)malloc(sizeof(CellNoeud));
+        CellNoeud *nouvCellH = (CellNoeud*)malloc(sizeof(CellNoeud));
         nouvCellH->nd = n;
         nouvCellH->suiv = (H->T)[index];
+		H->T[index] = nouvCellH;
 		return n;
 	}
 	return CNH->nd;
+}
+
+Reseau* reconstitueReseauHachage(Chaines *C, int m){
+	//si chaine vide
+	if(!C){return NULL;}
+	TableHachage *TH = (TableHachage*)malloc(sizeof(TableHachage));
+	TH-> nbElement = 0;
+    TH-> tailleMax = m;
+    TH-> T = (CellNoeud**)malloc(m * sizeof(CellNoeud*));
+
+	for (int i = 0 ; i < m ; i++) (TH -> T[i]) = NULL;
+
+	Reseau* R = malloc(sizeof(Reseau));
+	R->nbNoeuds = 0;
+	R->gamma = C->gamma;
+	R->noeuds = NULL;
+	
+	CellCommodite* com = NULL;
+
+	CellChaine *chainecour = C->chaines;
+	CellPoint * pointcour = NULL;
+	//On parcourt les chaines
+	while(chainecour){
+		pointcour = chainecour->points;
+
+		com = (CellCommodite*)malloc(sizeof(CellCommodite));
+
+		Noeud* nd_pointcour = NULL;
+		Noeud* nd_prec = NULL;
+		//On parcourt les points de la chaine
+		while(pointcour){
+			//Ajout de noeud
+			nd_pointcour =  rechercheCreeNoeudHachage(R, TH, C->chaines->points->x, C->chaines->points->y);
+			
+			if(nd_prec){
+			// verifier si nd_prec est voisins de nd_pointcour et si nd_pointcour est voisin de nd prec
+			//Ajout de precedent dans voisins
+			insererVoisin(nd_prec, nd_pointcour);
+			insererVoisin(nd_pointcour, nd_prec);
+
+			}else{
+			com->extrA = nd_pointcour;
+			}
+			nd_prec = nd_pointcour;
+			pointcour = pointcour->suiv;
+		}
+		
+		com->extrB = nd_prec;
+		com->suiv = R->commodites;
+		R->commodites = com;
+
+		chainecour = chainecour->suiv;
+	}
+	libereTableHachage(TH);
+	return R;
+}
+
+void libereTableHachage(TableHachage * TH) {
+    if (!TH) return ;
+    
+    CellNoeud * cnCour = NULL;
+    CellNoeud * cnPrec = NULL;
+    for (int i = 0 ; i < TH -> tailleMax ; i++) {
+        cnPrec = NULL;
+        cnCour = (TH -> T)[i];
+        while (cnCour) {
+            cnPrec = cnCour;
+            cnCour = cnCour -> suiv;
+            free(cnPrec);
+        }
+    }
+    free(TH -> T);
+    free(TH);
 }
