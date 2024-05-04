@@ -313,8 +313,21 @@ Reseau* reconstitueReseauArbre(Chaines* C){
 		Res->commodites = com;
 		chainecour = chainecour->suiv;
 	}
+	libereArbreQuat(arb);
+	if(!arb)printf("Arbre liberé successivement");
+	if(arb)printf("Arbre pas liberé ");
 	return Res;
 }
 
-
+void libereArbreQuat(ArbreQuat * a){
+	if(!a)return;
+	if(!a->noeud) {
+		libereArbreQuat(a->no);
+		libereArbreQuat(a->so);
+		libereArbreQuat(a->se);
+		libereArbreQuat(a->ne);
+		
+	}
+	free(a);
+}
 

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "Hachage.h"
+#include "ArbreQuat.h"
 #include "SVGwriter.h"
 
 int main(int argc, char* argv[]){
@@ -18,6 +18,7 @@ int main(int argc, char* argv[]){
 
     switch(atoi(argv[1])){
         case 1:
+            printf("meth liste");
             //Methode liste
             printf("reconstitueReseauListe\n");
             R = reconstitueReseauListe(c);
@@ -40,6 +41,13 @@ int main(int argc, char* argv[]){
             break;
         case 3:
             //Methode arbre
+            printf("reconstitueReseauArbre\n");
+            R = reconstitueReseauArbre(c);
+            printf("afficheReseauSVG\n");
+            afficheReseauSVG(R, "reseauArbre");
+            foutput = fopen("reseauArbre.txt", "w");
+            ecrireReseau(R, foutput);
+            libereReseauListe(R);
             break;
         default: 
             printf("Parametres incorrect\n");
