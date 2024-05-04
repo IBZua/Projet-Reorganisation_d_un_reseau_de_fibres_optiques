@@ -1,5 +1,8 @@
 #include "Chaine.h"
 #include "Reseau.h"
+#include <math.h>
+#include <stdlib.h>
+
 typedef struct{
   int nbElement; //pas necessaire ici
   int tailleMax;

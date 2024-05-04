@@ -18,7 +18,6 @@ int main(int argc, char* argv[]){
 
     switch(atoi(argv[1])){
         case 1:
-            printf("meth liste");
             //Methode liste
             printf("reconstitueReseauListe\n");
             R = reconstitueReseauListe(c);
@@ -35,6 +34,7 @@ int main(int argc, char* argv[]){
             R = reconstitueReseauHachage(c, comptePointsTotal(c));
             printf("afficheReseauSVG\n");
             afficheReseauSVG(R, "reseauHachage");
+            printf("ecrireReseau\n");
             foutput = fopen("reseauHachage.txt", "w");
             ecrireReseau(R, foutput);
             libereReseauListe(R);
@@ -45,6 +45,7 @@ int main(int argc, char* argv[]){
             R = reconstitueReseauArbre(c);
             printf("afficheReseauSVG\n");
             afficheReseauSVG(R, "reseauArbre");
+            printf("ecrireReseau\n");
             foutput = fopen("reseauArbre.txt", "w");
             ecrireReseau(R, foutput);
             libereReseauListe(R);

@@ -1,5 +1,3 @@
-#include <math.h>
-#include <stdlib.h>
 #include "Hachage.h"
 
 double cle(double x, double y){

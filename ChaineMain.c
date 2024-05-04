@@ -3,15 +3,15 @@
 #include <string.h>
 #include "Chaine.h"
 #include "SVGwriter.h"
-
+#include "Reseau.h"
 
 int main(int argc, char* argv[]){
 	Chaines* c = (Chaines*)malloc(sizeof(Chaines));
-	FILE *f = fopen(argv[1], "r");
+	FILE *f = fopen("00014_burma.cha", "r");
 	c = lectureChaines(f);
 	fclose(f);
 	afficheChainesSVG(c, "img1");
-	f = fopen(argv[2],"w");
+	f = fopen("output.txt","w");
 	printf("commence ecrire\n");
 	ecrireChaines(c, f);
 	fclose(f);

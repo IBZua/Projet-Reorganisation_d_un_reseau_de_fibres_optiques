@@ -1,7 +1,7 @@
 CFLAGS = -g -Wall -Wextra -pedantic -Wno-unused-parameter
 CC = gcc
 
-PROGRAMS = main ReseauMain
+PROGRAMS = main ReseauMain ChaineMain GenRMain
 
 .PHONY: all clean
 
@@ -19,16 +19,31 @@ SVGwriter.o: SVGwriter.c
 Chaine.o: Chaine.c
 	$(CC) $(CFLAGS) -c $<
 
+ArbreQuat.o: ArbreQuat.c
+	$(CC) $(CFLAGS) -c $<
+
 ChaineMain.o: ChaineMain.c
+	$(CC) $(CFLAGS) -c $<
+
+main.o: main.c
 	$(CC) $(CFLAGS) -c $<
 
 ReseauMain.o: ReseauMain.c
 	$(CC) $(CFLAGS) -c $<
 
-main: Chaine.o ChaineMain.o SVGwriter.o Reseau.o
+GenRMain.o: GenRMain.c
+	$(CC) $(CFLAGS) -c $<
+
+GenRMain: Chaine.o SVGwriter.o Reseau.o Hachage.o ArbreQuat.o GenRMain.o
 	$(CC) -o $@ $^ $(CFLAGS) -lm
 
-ReseauMain: Chaine.o SVGwriter.o Reseau.o Hachage.o ReseauMain.o
+main: Chaine.o SVGwriter.o Reseau.o Hachage.o ArbreQuat.o main.o
+	$(CC) -o $@ $^ $(CFLAGS) -lm
+
+ChaineMain: Chaine.o ChaineMain.o SVGwriter.o Reseau.o
+	$(CC) -g -o $@ $^ $(CFLAGS) -lm
+
+ReseauMain: Chaine.o SVGwriter.o Reseau.o Hachage.o ArbreQuat.o ReseauMain.o
 	$(CC) -g -o $@ $^ $(CFLAGS) -lm
 
 clean:

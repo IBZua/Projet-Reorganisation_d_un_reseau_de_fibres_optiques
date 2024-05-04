@@ -1,6 +1,3 @@
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include "Chaine.h"
 #include "SVGwriter.h"
 
@@ -81,8 +78,9 @@ Chaines* lectureChaines(FILE *f){
         for (int j = 0; j < nbPoints; j++) {
             sscanf(buffer, "%lf %lf %[^\n]\n", &x, &y,buffer);
             ajout_point_chaine(chaine, x, y);
+            printf("j = %d\n",j);
         }
-
+        printf("i = %d\n",i);
         ajout_Chaines(chaines, chaine);
     }
 
@@ -193,6 +191,36 @@ int comptePointsTotal(Chaines *C){
         tmp = c->points;
     }
     return nbPoint;
+}
+
+Chaines* generationAleatoire(int nbChaines,int nbPointsChaine,int xmax,int ymax){
+    //Declarer et initialiser les chaines
+    Chaines *C = (Chaines*)malloc(sizeof(Chaines));
+    C -> gamma = 0;
+    C -> nbChaines = nbChaines;
+    C -> chaines = NULL;
+
+    CellChaine * CC = NULL;
+    CellPoint * CP = NULL;
+
+    //Creer chaque chaine avec les valeurs aleatoires
+    for (int i = 0 ; i < nbChaines ; i++) {
+        CC = (CellChaine*)malloc(sizeof(CellChaine));
+        CC -> numero = i;
+        CC -> points = NULL;
+        CC -> suiv = C -> chaines;
+        C -> chaines = CC;
+
+        //Creer aleatoirement les points dans la chaine
+        for (int j = 0 ; j < nbPointsChaine ; j++) {
+            CP = (CellPoint*)malloc(sizeof(CellPoint));
+            CP->x = rand() % xmax;
+            CP->y = rand() % ymax;
+            CP->suiv = CC -> points;
+            CC->points = CP;
+        }
+    }
+    return C;
 }
 
 void libererCellChaine(CellChaine * cc){

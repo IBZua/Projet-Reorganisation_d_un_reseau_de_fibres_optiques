@@ -1,7 +1,4 @@
-#include <stdlib.h>
 #include "ArbreQuat.h"
-#include "Reseau.h"
-
 
 //5.1
 void chaineCoordMinMax(Chaines* C, double* xmin, double* ymin, double* xmax, double* ymax){
@@ -63,8 +60,6 @@ void insererNoeudArbre(Noeud* n, ArbreQuat** a, ArbreQuat* parent){
 	//Cas 1
 	//On choisent une des queartres cellules et on .
 	if (*a == NULL){
-	printf("cx:%f cy:%f cotex:%f cotey:%f\n",parent->xc, parent->yc, parent->coteX, parent->coteY);
-	
 
 		double centre_x, centre_y;
 		if(n->x < parent->xc){
@@ -254,8 +249,6 @@ Reseau* reconstitueReseauArbre(Chaines* C){
 	double Xmin, Ymin, Xmax, Ymax;
 	chaineCoordMinMax(C, &Xmin, &Ymin, &Xmax, &Ymax);
 	
-	printf("%f %f %f %f", Xmin, Ymin, Xmax, Ymax);
-	
 	double coteX = Xmax - Xmin;
 	double coteY = Ymax - Ymin;
 	ArbreQuat *arb = creerArbreQuat(Xmin + coteX/2, Ymin + coteY/2, coteX, coteY);
@@ -264,7 +257,6 @@ Reseau* reconstitueReseauArbre(Chaines* C){
 	CellChaine *chainecour = C->chaines;
 	CellPoint * pointcour = NULL;
 	while(chainecour){
-		printf("-----------------\n");
 		pointcour = chainecour->points;
 		com = (CellCommodite*)malloc(sizeof(CellCommodite));
 		Noeud* nd_pointcour = NULL;
@@ -291,8 +283,6 @@ Reseau* reconstitueReseauArbre(Chaines* C){
 					nd_pointcour = rechercheCreeNoeudArbre(Res, &(arb->ne), arb, pointcour->x, pointcour->y);
 				}
 			}
-			
-			printf("nb-noeud: %d -- x: %f  y: %f\n", Res->nbNoeuds, pointcour->x, pointcour->y);
 			if(nd_prec){
 			
 				//Ajout de precedent dans voisins
@@ -301,14 +291,12 @@ Reseau* reconstitueReseauArbre(Chaines* C){
 			}else{
 			
 				com->extrA = nd_pointcour;
-				printf("extrA x:%f  y;%f \n", com->extrA->x, com->extrA->y);
 			}
 			
 			nd_prec = nd_pointcour;
 			pointcour = pointcour->suiv;
 		}
 		com->extrB = nd_prec;
-		printf("extrB x:%f  y;%f \n", com->extrB->x, com->extrB->y);
 		com->suiv = Res->commodites;
 		Res->commodites = com;
 		chainecour = chainecour->suiv;

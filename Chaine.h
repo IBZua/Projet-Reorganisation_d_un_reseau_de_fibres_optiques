@@ -1,6 +1,8 @@
 #ifndef __CHAINE_H__
 #define __CHAINE_H__	
-#include<stdio.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 #include "SVGwriter.h"
 
 /* Liste chainee de points */
@@ -40,5 +42,6 @@ void afficheChainesSVG(Chaines *C, char* nomInstance);
 double longueurChaine(CellChaine *c);
 double longueurTotale(Chaines *C);
 int comptePointsTotal(Chaines *C);
+Chaines *generationAleatoire(int nbChaines,int nbPointsChaine,int xmax,int ymax);
 void libererChaines(Chaines* C);
 #endif	
