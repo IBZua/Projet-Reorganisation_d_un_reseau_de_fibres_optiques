@@ -82,42 +82,40 @@ Graphe * creerGraphe(Reseau * r){
         }
         //Nous ajoutons le sommet dans le tableau de sommets
         tab_s[s -> num] = s;
-
         cn = cn -> suiv;
     }
 
     g -> T_som = tab_s;
 
-    //Nous cherchons a creer la liste de comodites en parcourant la liste de commodites du reseau
+    //creation de la liste des commodites
     Commod * tab_com = (Commod *)malloc((g -> nbcommod) * sizeof(Commod));
     CellCommodite * r_commodites = r -> commodites;
     int i = 0;
+    //parcour des commodites en reseau
     while(r_commodites != NULL){
-        Commod g_k;
-        g_k.e1 = r_commodites -> extrA -> num;
-        g_k.e2 = r_commodites -> extrB -> num;
-        tab_com[i] = g_k;
+        Commod comm;
+        comm.e1 = r_commodites -> extrA -> num;
+        comm.e2 = r_commodites -> extrB -> num;
+        tab_com[i] = comm;
         i++;
 
         r_commodites = r_commodites -> suiv;
     }
-
     g -> T_commod = tab_com;
 
-    //Finalement, nous avons initialise tous les parametres du graphe, nous le retournons.
     return g;
 }
 
 //7.2
 int plusPetitNbArretes(Graphe* g, int a, int b){
-    //Nous initialisons un tableau visit qui nous donne la longueur de la chaîne de a à visit[i]
+    //initialisons de tableau visit qui nous donne la longueur de la chaîne de a à visit[i]
     int visit[(g -> nbsom) + 1];
     int i;
     for (i = 0; i < g -> nbsom + 1; i++){
         visit[i] = 0;
     }
 
-    //initialisons bordure avec une file
+    //initialisons de bordure 
     S_file * F = (S_file *)malloc(sizeof(S_file));
     Init_file(F);
     enfile(F,a);
@@ -164,8 +162,8 @@ int plusPetitNbArretes(Graphe* g, int a, int b){
 
 //7.3
 ListeEntier * plusCourteChaineUV(Graphe * G, int a, int b){
-    //Nous reprennons la fonction plusPetitNbAretes et nous la modifions pour qu'il retourne la chaîne entre a et b
-    //Pour cela, nous utiliserons une liste d'entiers, nous la declarons et initialisons
+    //Nous reprennons la fonction plusPetitNbAretes et nous la modifions pour qu'il retourne la chaîne entre a et b par liste d'entiers
+    // declaration  et initialisation
     ListeEntier * le = (ListeEntier *)malloc(sizeof(ListeEntier));
     Init_Liste(le);
 
@@ -175,7 +173,7 @@ ListeEntier * plusCourteChaineUV(Graphe * G, int a, int b){
     int i;
     for (i = 0; i < (G -> nbsom) + 1; i++){
         visit[i] = 0;
-        //Nous initialisons prec
+        //initialisation prec
         prec[i] = -1;
     }
     S_file * F = (S_file *)malloc(sizeof(S_file));
