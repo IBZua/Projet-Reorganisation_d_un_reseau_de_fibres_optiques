@@ -314,8 +314,6 @@ Reseau* reconstitueReseauArbre(Chaines* C){
 		chainecour = chainecour->suiv;
 	}
 	libereArbreQuat(arb);
-	if(!arb)printf("Arbre liberé successivement");
-	if(arb)printf("Arbre pas liberé ");
 	return Res;
 }
 
