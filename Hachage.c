@@ -11,6 +11,7 @@ int hachage(int m, double k){
     return m*(k*A-(k*A));
 }
 
+
 Noeud* rechercheCreeNoeudHachage(Reseau* R, TableHachage* H, double x, double y){
     //si reseau vide
 	if(!R){return NULL;}
@@ -20,7 +21,7 @@ Noeud* rechercheCreeNoeudHachage(Reseau* R, TableHachage* H, double x, double y)
     //On se positionne a l'index
     CellNoeud *CNH = (H->T)[index];
     //On parcourt chaque noeud du reseau tant que les coordonnees correspondent pas
-    while(CNH && CNH->nd->x != x && CNH->nd->y != y){
+    while(CNH && (CNH->nd->x != x && CNH->nd->y != y)){
         CNH = CNH->suiv;
     }
 	//Si rien n'est trouve on cree le noeud aux coordonnees x y
@@ -53,21 +54,22 @@ Reseau* reconstitueReseauHachage(Chaines *C, int m){
 	//si chaine vide
 	if(!C){return NULL;}
 	TableHachage *TH = (TableHachage*)malloc(sizeof(TableHachage));
-	TH-> nbElement = 0;
-    TH-> tailleMax = m;
-    TH-> T = (CellNoeud**)malloc(m * sizeof(CellNoeud*));
+	TH->nbElement = 0;
+    TH->tailleMax = m;
+    TH->T = (CellNoeud**)malloc(m * sizeof(CellNoeud*));
 
 	for (int i = 0 ; i < m ; i++) (TH -> T[i]) = NULL;
 
-	Reseau* R = malloc(sizeof(Reseau));
+	Reseau *R = (Reseau*)malloc(sizeof(Reseau));
 	R->nbNoeuds = 0;
 	R->gamma = C->gamma;
 	R->noeuds = NULL;
-	
+	R->commodites = NULL;
+
 	CellCommodite* com = NULL;
 
 	CellChaine *chainecour = C->chaines;
-	CellPoint * pointcour = NULL;
+	CellPoint *pointcour = NULL;
 	//On parcourt les chaines
 	while(chainecour){
 		pointcour = chainecour->points;
@@ -75,11 +77,14 @@ Reseau* reconstitueReseauHachage(Chaines *C, int m){
 		com = (CellCommodite*)malloc(sizeof(CellCommodite));
 
 		Noeud* nd_pointcour = NULL;
+		//Noeud* nd_tmp = rechercheCreeNoeudHachage(R, TH,pointcour->x, pointcour->y);
 		Noeud* nd_prec = NULL;
+
+		
 		//On parcourt les points de la chaine
 		while(pointcour){
 			//Ajout de noeud
-			nd_pointcour =  rechercheCreeNoeudHachage(R, TH, C->chaines->points->x, C->chaines->points->y);
+			nd_pointcour =  rechercheCreeNoeudHachage(R, TH,pointcour->x, pointcour->y);
 			
 			if(nd_prec){
 			// verifier si nd_prec est voisins de nd_pointcour et si nd_pointcour est voisin de nd prec
@@ -103,7 +108,6 @@ Reseau* reconstitueReseauHachage(Chaines *C, int m){
 	libereTableHachage(TH);
 	return R;
 }
-
 void libereTableHachage(TableHachage * TH) {
     if (!TH) return ;
     
