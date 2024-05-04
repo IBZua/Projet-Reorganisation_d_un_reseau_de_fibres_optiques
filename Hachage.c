@@ -20,9 +20,13 @@ Noeud* rechercheCreeNoeudHachage(Reseau* R, TableHachage* H, double x, double y)
     int index = hachage(c, H->tailleMax);
     //On se positionne a l'index
     CellNoeud *CNH = (H->T)[index];
+	Noeud *NH = NULL;
     //On parcourt chaque noeud du reseau tant que les coordonnees correspondent pas
-    while(CNH && (CNH->nd->x != x && CNH->nd->y != y)){
-        CNH = CNH->suiv;
+    while(CNH){
+         NH = CNH -> nd;
+
+        if((NH -> x) == x && (NH -> y) == y) return NH;
+        CNH = CNH -> suiv;
     }
 	//Si rien n'est trouve on cree le noeud aux coordonnees x y
 	if(!CNH){
