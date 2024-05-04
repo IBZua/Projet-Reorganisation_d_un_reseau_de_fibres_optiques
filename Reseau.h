@@ -36,6 +36,7 @@ Reseau* reconstitueReseauListe(Chaines *C);
 void ecrireReseau(Reseau *R, FILE *f);
 int nbLiaisons(Reseau *R);
 int nbCommodites(Reseau *R);
+void insererVoisin(Noeud *N, Noeud *V);
 void afficheReseauSVG(Reseau *R, char* nomInstance);
 void libereReseauListe(Reseau *R);
 #endif
