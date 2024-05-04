@@ -2,88 +2,109 @@
 #include "Graphe.h"
 #include "Struct_File.h"
 #include "Reseau.h"
+
+
+
 // 7.1
-Graphe* creerGraphe(Reseau* r){
-    Graphe *g = (Graphe*)malloc(sizeof(Graphe));
+Graphe * creerGraphe(Reseau * r){
+    Graphe * g = (Graphe *)malloc(sizeof(Graphe));
+    //Test alloc
+    if(!g){
+        printf("Erreur lors de l'allocation Graphe.\n");
+        return NULL;
+    }
+    //initialisation graphe
+    g -> nbsom = r -> nbNoeuds;
+    g -> gamma = r -> gamma;
+    g -> nbcommod = nbCommodites(r);
 
-    g->nbsom = r->nbNoeuds;
-    g->gamma = r->gamma;
-    g->nbcommod = nbCommodites(r);
+    //tableau des sommets
+    Sommet ** tab_s = (Sommet **)malloc(((g -> nbsom) + 1) * sizeof(Sommet*));
 
-    Sommet ** tab_s = (Sommet**)malloc((g->nbcommod + 1)*sizeof(Sommet*));
-
-    for(int i=0; i<g->nbsom +1; i++){
+    //Nous initialisons le tableau de sommets
+    for(int i = 0 ; i < (g -> nbsom) + 1 ; i++){
         tab_s[i] = NULL;
     }
 
     CellNoeud * cn = r -> noeuds;
     Noeud * nd = NULL;
-    CellNoeud * voisin = NULL;
-    int num_voisin;
-    
-    while(cn){
+    CellNoeud * voisins = NULL;
+    int numVoisin = 0;
+
+    //parcour liste des noeuds du reseau
+    while(cn != NULL){
         nd = cn -> nd;
+        voisins = nd -> voisins;
+
+        //creation sommet
         Sommet * s = (Sommet *)malloc(sizeof(Sommet));
-        
+    
+        //les initialisons du sommet
         s -> num = nd -> num;
         s -> x = nd -> x;
         s -> y = nd -> y;
         s -> L_voisin = NULL;
-       
-        while (voisin) {
-            num_voisin = voisin -> nd -> num;
-            Arete * arr = NULL;
 
-            //on comparons les num des sommets pour voir si on a deja vu le voisin
-            //Si c'est le 1er rencontre
-            if(num_voisin <= nd -> num){ 
-                arr = (Arete *)malloc(sizeof(Arete));
-                arr -> u = nd -> num;
-                arr -> v = num_voisin;
-            
-            //si on a deja vu
-            } else {    // nous le trouvons dans la liste des voisins du sommet u
-                Cellule_arete * cll_arr_djv = tab_s[num_voisin] -> L_voisin;
-                Arete * arr_djv = NULL;
+        while (voisins) {
+            numVoisin = voisins -> nd -> num;
+            Arete * new_arr = NULL;
 
-                while(cll_arr_djv != NULL){
-                    arr_djv = cll_arr_djv -> a;
-                    //On cherche l'arete qui a pour numero = le numero du sommet v
-                    if(arr_djv -> v == nd -> num){
-                        arr = arr_djv;
+            //Nous comparons les numeros des sommets pour determiner si on a deja vu le voisin
+            //Si c'est la première fois qu'on rencontre cet arete, nous allouons et initialisons
+            if(numVoisin <= nd -> num){ 
+                new_arr = (Arete *)malloc(sizeof(Arete));
+                new_arr -> u = nd -> num;
+                new_arr -> v = numVoisin;
+
+            } else {    
+                // sinon, on regarde la liste des voisins du sommet u
+                Cellule_arete * cll_dejavu = tab_s[numVoisin] -> L_voisin;
+                Arete * arr_dejavu = NULL;
+
+                while(cll_dejavu != NULL){
+                    arr_dejavu = cll_dejavu -> a;
+                    //On cherche numero de l'arete qui egale le numero du sommet v
+                    if(arr_dejavu -> v == nd -> num){
+                        new_arr = arr_dejavu;
                         break;
                     }
-                    cll_arr_djv = cll_arr_djv -> suiv;
+                    cll_dejavu = cll_dejavu -> suiv;
                 }
             }
 
             //Creer la cellule arete et ajouter l'arete dans cette cellule
             Cellule_arete * cll_arr = (Cellule_arete *)malloc(sizeof(Cellule_arete));
-            cll_arr -> a = arr;
+            cll_arr -> a = new_arr;
             cll_arr -> suiv = s -> L_voisin;
             s -> L_voisin = cll_arr;
 
-            voisin = voisin -> suiv;
+            voisins = voisins -> suiv;
         }
-
+        //Nous ajoutons le sommet dans le tableau de sommets
         tab_s[s -> num] = s;
+
         cn = cn -> suiv;
     }
-    g->T_som = tab_s;
 
-    Commod * liste_com  = (Commod *)malloc((g -> nbcommod) * sizeof(Commod));
-    CellCommodite * com_cour = r->commodites;
-    int j = 0;
-    while(com_cour){
-        Commod c;
-        c.e1 = com_cour->extrA->num;
-        c.e2 = com_cour->extrB->num;
-        liste_com[j] = c;
-        j++;
+    g -> T_som = tab_s;
 
-        com_cour = com_cour->suiv;
+    //Nous cherchons a creer la liste de comodites en parcourant la liste de commodites du reseau
+    Commod * tab_com = (Commod *)malloc((g -> nbcommod) * sizeof(Commod));
+    CellCommodite * r_commodites = r -> commodites;
+    int i = 0;
+    while(r_commodites != NULL){
+        Commod g_k;
+        g_k.e1 = r_commodites -> extrA -> num;
+        g_k.e2 = r_commodites -> extrB -> num;
+        tab_com[i] = g_k;
+        i++;
+
+        r_commodites = r_commodites -> suiv;
     }
-    g->T_commod = liste_com;
+
+    g -> T_commod = tab_com;
+
+    //Finalement, nous avons initialise tous les parametres du graphe, nous le retournons.
     return g;
 }
 
