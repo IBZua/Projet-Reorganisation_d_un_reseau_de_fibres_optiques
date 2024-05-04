@@ -54,6 +54,8 @@ ArbreQuat* creerArbreQuat(double xc, double yc, double coteX, double coteY){
 	return arbreQ;
 }
 
+
+
 //5.3
 //Je ne saispas si ca marche. je meme comprends pas totalement qu-est ce qu'il est demande.
 void insererNoeudArbre(Noeud* n, ArbreQuat** a, ArbreQuat* parent){
@@ -172,6 +174,7 @@ void insererNoeudArbre(Noeud* n, ArbreQuat** a, ArbreQuat* parent){
 //5.4
 Noeud* rechercheCreeNoeudArbre(Reseau* R, ArbreQuat** a, ArbreQuat* parent, double x, double y){
 	ArbreQuat* arb = *a ;
+	//Premier cas
 	if (arb == NULL){
 		Noeud* n = (Noeud*)malloc(sizeof(Noeud));
 		
@@ -190,7 +193,7 @@ Noeud* rechercheCreeNoeudArbre(Reseau* R, ArbreQuat** a, ArbreQuat* parent, doub
 		insererNoeudArbre(n, &(*a), parent);
 		return n;
 	}
-
+	//Deuxieme cas
 	if (arb->noeud != NULL){
 		if ((arb->noeud->x == x) && (arb->noeud->y == y)){
 			return arb->noeud;
@@ -215,8 +218,8 @@ Noeud* rechercheCreeNoeudArbre(Reseau* R, ArbreQuat** a, ArbreQuat* parent, doub
 	}
 
 	if((*a != NULL) && ((*a)->noeud == NULL)){
-		if(x < parent->xc){
-			if(y < parent->yc){
+		if(x < arb->xc){
+			if(y < arb->yc){
 				//so
 				return rechercheCreeNoeudArbre(R, &(arb->so), arb, x, y);
 			}else{
@@ -225,7 +228,7 @@ Noeud* rechercheCreeNoeudArbre(Reseau* R, ArbreQuat** a, ArbreQuat* parent, doub
 			}
 		}
 		else{
-			if(y < parent->yc){
+			if(y < arb->yc){
 				//se
 				return rechercheCreeNoeudArbre(R, &(arb->se), arb, x, y);
 			}else{
@@ -312,3 +315,6 @@ Reseau* reconstitueReseauArbre(Chaines* C){
 	}
 	return Res;
 }
+
+
+

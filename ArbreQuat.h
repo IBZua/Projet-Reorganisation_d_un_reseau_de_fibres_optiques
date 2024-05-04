@@ -1,4 +1,4 @@
-#include "Reseau.h"
+#include "Hachage.h"
 # ifndef __ARBRE_QUAT_H__
 # define __ARBRE_QUAT_H__
 
@@ -20,5 +20,5 @@ ArbreQuat* creerArbreQuat(double xc, double yc, double coteX, double coteY);
 void insererNoeudArbre(Noeud* n, ArbreQuat** a, ArbreQuat* parent);
 Noeud* rechercheCreeNoeudArbre(Reseau* R, ArbreQuat** a, ArbreQuat* parent, double x, double y);
 Reseau* reconstitueReseauArbre(Chaines* C);
-
+void libereArbreQuat(ArbreQuat * a);
 #endif
