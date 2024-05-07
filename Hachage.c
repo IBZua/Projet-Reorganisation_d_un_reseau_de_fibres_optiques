@@ -15,7 +15,7 @@ Noeud* rechercheCreeNoeudHachage(Reseau* R, TableHachage* H, double x, double y)
 	if(!R){return NULL;}
     //On cree la cle et on calcul l'index dans H
     double c = cle(x,y);
-    int index = hachage(c, H->tailleMax);
+    int index = hachage(H->tailleMax, c);
     //On se positionne a l'index
     CellNoeud *CNH = (H->T)[index];
 	Noeud *NH = NULL;
@@ -49,7 +49,6 @@ Noeud* rechercheCreeNoeudHachage(Reseau* R, TableHachage* H, double x, double y)
 		H->T[index] = nouvCellH;
 		return n;
 	}
-	return CNH->nd;
 }
 
 Reseau* reconstitueReseauHachage(Chaines *C, int m){
@@ -79,7 +78,6 @@ Reseau* reconstitueReseauHachage(Chaines *C, int m){
 		com = (CellCommodite*)malloc(sizeof(CellCommodite));
 
 		Noeud* nd_pointcour = NULL;
-		//Noeud* nd_tmp = rechercheCreeNoeudHachage(R, TH,pointcour->x, pointcour->y);
 		Noeud* nd_prec = NULL;
 
 		

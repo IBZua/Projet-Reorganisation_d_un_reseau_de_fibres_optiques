@@ -1,27 +1,30 @@
 #include "Chaine.h"
 #include "SVGwriter.h"
-
+//cree un point aux coordonnees x y
 CellPoint *creer_point(double x,double y){
 	CellPoint *p=(CellPoint*)malloc(sizeof(CellPoint));
 	p->x=x;
 	p->y=y;
 	p->suiv=NULL;
 	return p;}
-	
+
+//cree une liste
 CellChaine *creer_liste_chaine(int numero){
 	CellChaine *lc=(CellChaine*)malloc(sizeof(CellChaine));
 	lc->numero = numero;
 	lc->points=NULL;
 	lc->suiv=NULL;
 	return lc;}
-	
+
+//cree une chaine
 Chaines *creer_chaine(int gamma){
 	Chaines *c=(Chaines*)malloc(sizeof(Chaines));
 	c->gamma = gamma;
 	c->nbChaines=0;
 	c->chaines=NULL;
 	return c;}
-	
+
+//ajout point en fin de chaine
 void ajout_point_chaine(CellChaine *lc, double x,double y){
 	CellPoint *new=creer_point( x, y);
 	
@@ -57,12 +60,13 @@ Chaines* lectureChaines(FILE *f){
 	int gamma;
 	char buffer[256];
 	
+    //on recupere le nombre de chaine et gamme
 	fgets(buffer,256,f);
 	sscanf(buffer,"NbChain: %d\n",&nbChaines);
 	fgets(buffer,256,f);
 	sscanf(buffer,"Gamma: %d\n",&gamma);
 	
-	 Chaines * chaines = creer_chaine(gamma);
+	Chaines * chaines = creer_chaine(gamma);
 
     // Lecture des chaînes
     for (int i = 0; i < nbChaines; i++) {

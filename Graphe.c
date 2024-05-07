@@ -2,120 +2,101 @@
 #include "Graphe.h"
 #include "Struct_File.h"
 #include "Reseau.h"
-
-
-
 // 7.1
-Graphe * creerGraphe(Reseau * r){
-    Graphe * g = (Graphe *)malloc(sizeof(Graphe));
-    //Test alloc
-    if(!g){
-        printf("Erreur lors de l'allocation Graphe.\n");
-        return NULL;
-    }
-    //initialisation graphe
-    g -> nbsom = r -> nbNoeuds;
-    g -> gamma = r -> gamma;
-    g -> nbcommod = nbCommodites(r);
+Graphe* creerGraphe(Reseau* r){
+    Graphe *g = (Graphe*)malloc(sizeof(Graphe));
 
-    //tableau des sommets
-    Sommet ** tab_s = (Sommet **)malloc(((g -> nbsom) + 1) * sizeof(Sommet*));
+    g->nbsom = r->nbNoeuds;
+    g->gamma = r->gamma;
+    g->nbcommod = nbCommodites(r);
 
-    //Nous initialisons le tableau de sommets
-    for(int i = 0 ; i < (g -> nbsom) + 1 ; i++){
+    Sommet ** tab_s = (Sommet**)malloc((g->nbcommod + 1)*sizeof(Sommet*));
+
+    for(int i=0; i<g->nbsom +1; i++){
         tab_s[i] = NULL;
     }
 
     CellNoeud * cn = r -> noeuds;
     Noeud * nd = NULL;
-    CellNoeud * voisins = NULL;
-    int numVoisin = 0;
-
-    //parcour liste des noeuds du reseau
-    while(cn != NULL){
-        nd = cn -> nd;
-        voisins = nd -> voisins;
-
-        //creation sommet
-        Sommet * s = (Sommet *)malloc(sizeof(Sommet));
+    CellNoeud * voisin = NULL;
+    int num_voisin;
     
-        //les initialisons du sommet
+    while(cn){
+        nd = cn -> nd;
+        Sommet * s = (Sommet *)malloc(sizeof(Sommet));
+        
         s -> num = nd -> num;
         s -> x = nd -> x;
         s -> y = nd -> y;
         s -> L_voisin = NULL;
+       
+        while (voisin) {
+            num_voisin = voisin -> nd -> num;
+            Arete * arr = NULL;
 
-        while (voisins) {
-            numVoisin = voisins -> nd -> num;
-            Arete * new_arr = NULL;
+            //on comparons les num des sommets pour voir si on a deja vu le voisin
+            //Si c'est le 1er rencontre
+            if(num_voisin <= nd -> num){ 
+                arr = (Arete *)malloc(sizeof(Arete));
+                arr -> u = nd -> num;
+                arr -> v = num_voisin;
+            
+            //si on a deja vu
+            } else {    // nous le trouvons dans la liste des voisins du sommet u
+                Cellule_arete * cll_arr_djv = tab_s[num_voisin] -> L_voisin;
+                Arete * arr_djv = NULL;
 
-            //Nous comparons les numeros des sommets pour determiner si on a deja vu le voisin
-            //Si c'est la première fois qu'on rencontre cet arete, nous allouons et initialisons
-            if(numVoisin <= nd -> num){ 
-                new_arr = (Arete *)malloc(sizeof(Arete));
-                new_arr -> u = nd -> num;
-                new_arr -> v = numVoisin;
-
-            } else {    
-                // sinon, on regarde la liste des voisins du sommet u
-                Cellule_arete * cll_dejavu = tab_s[numVoisin] -> L_voisin;
-                Arete * arr_dejavu = NULL;
-
-                while(cll_dejavu != NULL){
-                    arr_dejavu = cll_dejavu -> a;
-                    //On cherche numero de l'arete qui egale le numero du sommet v
-                    if(arr_dejavu -> v == nd -> num){
-                        new_arr = arr_dejavu;
+                while(cll_arr_djv != NULL){
+                    arr_djv = cll_arr_djv -> a;
+                    //On cherche l'arete qui a pour numero = le numero du sommet v
+                    if(arr_djv -> v == nd -> num){
+                        arr = arr_djv;
                         break;
                     }
-                    cll_dejavu = cll_dejavu -> suiv;
+                    cll_arr_djv = cll_arr_djv -> suiv;
                 }
             }
 
             //Creer la cellule arete et ajouter l'arete dans cette cellule
             Cellule_arete * cll_arr = (Cellule_arete *)malloc(sizeof(Cellule_arete));
-            cll_arr -> a = new_arr;
+            cll_arr -> a = arr;
             cll_arr -> suiv = s -> L_voisin;
             s -> L_voisin = cll_arr;
 
-            voisins = voisins -> suiv;
+            voisin = voisin -> suiv;
         }
-        //Nous ajoutons le sommet dans le tableau de sommets
+
         tab_s[s -> num] = s;
         cn = cn -> suiv;
     }
+    g->T_som = tab_s;
 
-    g -> T_som = tab_s;
+    Commod * liste_com  = (Commod *)malloc((g -> nbcommod) * sizeof(Commod));
+    CellCommodite * com_cour = r->commodites;
+    int j = 0;
+    while(com_cour){
+        Commod c;
+        c.e1 = com_cour->extrA->num;
+        c.e2 = com_cour->extrB->num;
+        liste_com[j] = c;
+        j++;
 
-    //creation de la liste des commodites
-    Commod * tab_com = (Commod *)malloc((g -> nbcommod) * sizeof(Commod));
-    CellCommodite * r_commodites = r -> commodites;
-    int i = 0;
-    //parcour des commodites en reseau
-    while(r_commodites != NULL){
-        Commod comm;
-        comm.e1 = r_commodites -> extrA -> num;
-        comm.e2 = r_commodites -> extrB -> num;
-        tab_com[i] = comm;
-        i++;
-
-        r_commodites = r_commodites -> suiv;
+        com_cour = com_cour->suiv;
     }
-    g -> T_commod = tab_com;
-
+    g->T_commod = liste_com;
     return g;
 }
 
 //7.2
 int plusPetitNbArretes(Graphe* g, int a, int b){
-    //initialisons de tableau visit qui nous donne la longueur de la chaîne de a à visit[i]
+    //Nous initialisons un tableau visit qui nous donne la longueur de la chaîne de a à visit[i]
     int visit[(g -> nbsom) + 1];
     int i;
     for (i = 0; i < g -> nbsom + 1; i++){
         visit[i] = 0;
     }
 
-    //initialisons de bordure 
+    //initialisons bordure avec une file
     S_file * F = (S_file *)malloc(sizeof(S_file));
     Init_file(F);
     enfile(F,a);
@@ -142,7 +123,7 @@ int plusPetitNbArretes(Graphe* g, int a, int b){
                 visit[v] = visit[u] + 1;
                 enfile(F,v);
 
-                //Si on est arrivée au sommet target, nous retournons la distance entre r et s, en prenant le plus cours chemin entre les deux sommets.
+                //Si on est arrivée au sommet target, nous retournons la distance entre a et b, en prenant le plus cours chemin entre les deux sommets.
                 if(v == b){
                     while(!estFileVide(F)){
                         defile(F);
@@ -162,8 +143,8 @@ int plusPetitNbArretes(Graphe* g, int a, int b){
 
 //7.3
 ListeEntier * plusCourteChaineUV(Graphe * G, int a, int b){
-    //Nous reprennons la fonction plusPetitNbAretes et nous la modifions pour qu'il retourne la chaîne entre a et b par liste d'entiers
-    // declaration  et initialisation
+    //Nous reprennons la fonction plusPetitNbAretes et nous la modifions pour qu'il retourne la chaîne entre a et b
+    //Pour cela, nous utiliserons une liste d'entiers, nous la declarons et initialisons
     ListeEntier * le = (ListeEntier *)malloc(sizeof(ListeEntier));
     Init_Liste(le);
 
@@ -173,7 +154,7 @@ ListeEntier * plusCourteChaineUV(Graphe * G, int a, int b){
     int i;
     for (i = 0; i < (G -> nbsom) + 1; i++){
         visit[i] = 0;
-        //initialisation prec
+        //Nous initialisons prec
         prec[i] = -1;
     }
     S_file * F = (S_file *)malloc(sizeof(S_file));
